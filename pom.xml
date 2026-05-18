@@ -7,6 +7,7 @@
 
     <groupId>fr.fabrique</groupId>
     <artifactId>fabrique-lunettes</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>Fabrique de lunettes</name>
     <description>
