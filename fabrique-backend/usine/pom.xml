@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>fr.fabrique</groupId>
+        <artifactId>fabrique-backend-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>usine</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Fabrique de lunettes - Usine</name>
+    <description>
+        Pilote le fabricateur. Expose une API thread-safe produire(Map&lt;TypeLunette, Integer&gt;)
+        pour fabriquer des lots de lunettes. Publié indépendamment sur GitHub Packages.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>bernard-flou</groupId>
+            <artifactId>fabricateur</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

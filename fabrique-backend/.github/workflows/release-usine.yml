@@ -1,0 +1,54 @@
+name: Publish usine on release
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Inject Fabricateur credentials in settings.xml
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<'EOF'
+          <settings>
+            <servers>
+              <server>
+                <id>github-fabricateur</id>
+                <username>${env.FABRICATEUR_USERNAME}</username>
+                <password>${env.FABRICATEUR_TOKEN}</password>
+              </server>
+              <server>
+                <id>github</id>
+                <username>${env.GITHUB_ACTOR}</username>
+                <password>${env.GITHUB_TOKEN}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Set version from tag
+        run: mvn -B versions:set -DnewVersion=${GITHUB_REF_NAME#v} -DgenerateBackupPoms=false
+
+      - name: Build and deploy only the 'usine' module
+        env:
+          FABRICATEUR_USERNAME: ${{ secrets.FABRICATEUR_USERNAME }}
+          FABRICATEUR_TOKEN: ${{ secrets.FABRICATEUR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B -pl usine -am deploy -DskipTests=false
