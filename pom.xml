@@ -6,17 +6,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.fabrique</groupId>
-    <artifactId>fabrique-backend-parent</artifactId>
+    <artifactId>fabrique-lunettes</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <name>Fabrique de lunettes - Backend (parent)</name>
-    <description>Backend de la fabrique : module usine (pilote le fabricateur) + module serveur (passerelle MQTT)</description>
-
-    <modules>
-        <module>usine</module>
-        <module>serveur</module>
-    </modules>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
