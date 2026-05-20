@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="fr.fabrique.frontend.controller.AttenteController"
+      alignment="CENTER" spacing="24"
+      style="-fx-background-color: white; -fx-padding: 60;">
+
+    <Label fx:id="lblTitre" text="Fabrication en cours..."
+           style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: black;"/>
+
+    <ProgressIndicator fx:id="spinner" progress="-1"
+                       style="-fx-pref-width: 80; -fx-pref-height: 80;"/>
+
+    <Label fx:id="lblStatut" text=""
+           style="-fx-font-size: 14; -fx-text-fill: #a0a0cc;"/>
+
+    <VBox fx:id="panneauResultat" visible="false" alignment="CENTER" spacing="12">
+        <Label text="✅ Vos lunettes sont prêtes !"
+               style="-fx-font-size: 18; -fx-text-fill: #6cff9f;"/>
+        <Label text="Numéros de série :"
+               style="-fx-text-fill: #a0a0cc;"/>
+        <ListView fx:id="listSerials"
+                  style="-fx-background-color: #16213e; -fx-pref-height: 180;"/>
+        <Button text="Nouvelle commande" onAction="#onNouvelleCommande"
+                style="-fx-background-color: #6c63ff; -fx-text-fill: white; -fx-padding: 10 24; -fx-background-radius: 6;"/>
+    </VBox>
+
+    <VBox fx:id="panneauErreur" visible="false" alignment="CENTER" spacing="12">
+        <Label text="❌ Commande non traitée"
+               style="-fx-font-size: 18; -fx-text-fill: #ff6c6c;"/>
+        <Label fx:id="lblErreurDetail" text=""
+               style="-fx-text-fill: #a0a0cc; -fx-wrap-text: true; -fx-max-width: 500;"/>
+        <Button text="Retour" onAction="#onNouvelleCommande"
+                style="-fx-background-color: #444466; -fx-text-fill: white; -fx-padding: 10 24; -fx-background-radius: 6;"/>
+    </VBox>
+
+</VBox>

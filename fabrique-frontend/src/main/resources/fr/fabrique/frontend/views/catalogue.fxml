@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="fr.fabrique.frontend.controller.CatalogueController"
+            style="-fx-background-color: white;">
+
+    <!-- En-tête -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              style="-fx-padding: 20; -fx-background-color: #16213e;">
+            <Button text="← Accueil" onAction="#onRetourAccueil"
+                    style="-fx-background-color: transparent; -fx-text-fill: #a0a0cc;"/>
+            <Label text="Catalogue" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblPanier" text="Panier : 0"
+                   style="-fx-text-fill: white;"/>
+            <Button fx:id="btnCommander" text="Commander →" onAction="#onPasserCommande"
+                    disable="true"
+                    style="-fx-background-color: #6c63ff; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 6;"/>
+        </HBox>
+    </top>
+
+    <!-- Liste des produits -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: white; -fx-background-color: #1a1a2e;">
+            <FlowPane fx:id="flowProduits" hgap="20" vgap="20"
+                      style="-fx-padding: 30;"/>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
