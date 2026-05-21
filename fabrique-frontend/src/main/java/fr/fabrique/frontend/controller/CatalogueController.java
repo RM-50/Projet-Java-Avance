@@ -1,0 +1,124 @@
+package fr.fabrique.frontend.controller;
+
+import fr.fabrique.frontend.SceneRouter;
+import fr.fabrique.frontend.model.CatalogueLoader;
+import fr.fabrique.frontend.model.Panier;
+import fr.fabrique.frontend.model.Produit;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Contrôleur de l'écran catalogue.
+ */
+public class CatalogueController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CatalogueController.class);
+
+    @FXML private FlowPane flowProduits;
+    @FXML private Label    lblPanier;
+    @FXML private Button   btnCommander;
+
+    private final Panier panier = new Panier();
+    private SceneRouter router;
+
+    @FXML
+    public void initialize() {
+        panier.quantitesProperty().addListener((obs, o, n) -> rafraichirPanier());
+
+        chargerCatalogue();
+    }
+
+    private void chargerCatalogue() {
+        try {
+            List<Produit> produits = CatalogueLoader.charger();
+            for (Produit p : produits) {
+                flowProduits.getChildren().add(construireCarteVue(p));
+            }
+        } catch (IOException e) {
+            LOG.error("Impossible de charger le catalogue", e);
+        }
+    }
+
+    /**
+     * Construit la carte visuelle d'un produit.
+     */
+    private VBox construireCarteVue(Produit p) {
+        VBox carte = new VBox(8);
+        carte.setStyle("-fx-background-color: #16213e; -fx-padding: 20; "
+                + "-fx-background-radius: 12; -fx-min-width: 200;");
+
+        Label nom   = new Label(p.name());
+        nom.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        Label prix  = new Label(String.format("%.2f €", p.price()));
+        prix.setStyle("-fx-text-fill: white; -fx-font-size: 14;");
+
+        Label desc  = new Label(p.description());
+        desc.setStyle("-fx-text-fill: white; -fx-font-size: 11; -fx-wrap-text: true; -fx-max-width: 180;");
+
+        Label badge = new Label(p.badge());
+        badge.setStyle("-fx-background-color: #6c63ff; -fx-text-fill: white; "
+                + "-fx-padding: 2 8; -fx-background-radius: 4; -fx-font-size: 10;");
+        badge.setVisible(!p.badge().isBlank());
+
+        // Contrôleur de quantité
+        Label lblQte  = new Label("0");
+        lblQte.setStyle("-fx-text-fill: white; -fx-min-width: 24; -fx-alignment: CENTER;");
+
+        Button moins = new Button("−");
+        Button plus  = new Button("+");
+        String btnStyle = "-fx-background-color: #444466; -fx-text-fill: white; "
+                + "-fx-padding: 4 10; -fx-background-radius: 4;";
+        moins.setStyle(btnStyle);
+        plus.setStyle(btnStyle);
+
+        plus.setOnAction(e -> {
+            panier.incrementer(p.id());
+            lblQte.setText(String.valueOf(panier.quantite(p.id())));
+        });
+        moins.setOnAction(e -> {
+            panier.decrementer(p.id());
+            lblQte.setText(String.valueOf(panier.quantite(p.id())));
+        });
+
+        HBox qteBox = new HBox(6, moins, lblQte, plus);
+        qteBox.setStyle("-fx-alignment: CENTER;");
+
+        carte.getChildren().addAll(badge, nom, prix, desc, qteBox);
+        return carte;
+    }
+
+    private void rafraichirPanier() {
+        int total = panier.total();
+        lblPanier.setText("Panier : " + total);
+        btnCommander.setDisable(panier.estVide());
+    }
+
+    @FXML
+    private void onRetourAccueil() {
+        router().allerAccueil();
+    }
+
+    @FXML
+    private void onPasserCommande() {
+        if (panier.estVide()) return;
+        LOG.info("Commande passée : {}", panier.getQuantites());
+        router().allerAttente("orderId");
+    }
+
+    private SceneRouter router() {
+        if (router == null) {
+            router = (SceneRouter) flowProduits.getScene().getRoot().getUserData();
+        }
+        return router;
+    }
+}
