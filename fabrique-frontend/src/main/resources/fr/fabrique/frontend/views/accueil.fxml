@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="fr.fabrique.frontend.controller.AccueilController"
+      alignment="CENTER" spacing="30"
+      style="-fx-background-color: white; -fx-padding: 60;">
+
+    <Label text="Fabrique de Lunettes"
+           style="-fx-font-size: 36; -fx-font-weight: bold; -fx-text-fill: black;"/>
+
+    <Label text="Vos lunettes connectées, fabriquées à la demande"
+           style="-fx-font-size: 16; -fx-text-fill: black;"/>
+
+    <HBox alignment="CENTER" spacing="20">
+        <Button fx:id="btnCommander" text="Commander"
+                style="-fx-font-size: 14; -fx-padding: 12 30; -fx-background-color: #16213e; -fx-text-fill: white; -fx-background-radius: 8;"
+                onAction="#onCommander"/>
+        <Button fx:id="btnVerifier" text="Vérifier un S/N"
+                style="-fx-font-size: 14; -fx-padding: 12 30; -fx-background-color: #16213e; -fx-text-fill: white; -fx-background-radius: 8;"
+                onAction="#onVerifier"/>
+    </HBox>
+
+</VBox>

@@ -1,31 +1,35 @@
 package fr.fabrique.frontend;
 
+import fr.fabrique.frontend.mqtt.MqttFrontendClient;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Application JavaFX de la fabrique.
- *
- * Squelette minimal : affiche un écran d'accueil.
  */
 public class FrontendApp extends Application {
 
     private static final Logger LOG = LoggerFactory.getLogger(FrontendApp.class);
 
+    private final MqttFrontendClient mqttClient = MqttFrontendClient.getInstance();
+
     @Override
     public void start(Stage stage) {
         LOG.info("Démarrage du frontend Fabrique");
 
-        Label placeholder = new Label("Fabrique de lunettes — squelette JavaFX");
-        Scene scene = new Scene(new StackPane(placeholder), 800, 600);
-
+        try {
+            mqttClient.connecter();
+        } catch ( MqttException e) {
+            LOG.warn("Impossible de se connecter au broker MQTT au démarrage : {}", e.getMessage());
+        }
         stage.setTitle("Fabrique de lunettes");
-        stage.setScene(scene);
+
+        SceneRouter router = new SceneRouter(stage, mqttClient);
+        router.allerAccueil();
+
         stage.show();
     }
 

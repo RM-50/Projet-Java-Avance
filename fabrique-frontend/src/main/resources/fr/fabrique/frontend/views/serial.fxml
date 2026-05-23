@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="fr.fabrique.frontend.controller.SerialController"
+      alignment="CENTER" spacing="20"
+      style="-fx-background-color: white; -fx-padding: 60;">
+
+    <Label text="Vérification de numéro de série"
+           style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: black;"/>
+
+    <Label text="Format attendu : XX-XXXXXX-XXXXXX"
+           style="-fx-text-fill: black;"/>
+
+    <HBox spacing="12" alignment="CENTER">
+        <TextField fx:id="txtSerial" promptText="AB-123456-789012"
+                   style="-fx-pref-width: 260; -fx-background-color: white; -fx-text-fill: black; -fx-padding: 8 12;-fx-border-color: #16213e;
+                  -fx-border-width: 2;
+                  -fx-border-radius: 4;
+                  -fx-background-radius: 4;"/>
+        <Button text="Vérifier" onAction="#onVerifier"
+                style="-fx-background-color: #16213e; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 6;"/>
+    </HBox>
+
+    <Label fx:id="lblResultat" text="" wrapText="true"
+           style="-fx-font-size: 15; -fx-text-fill: #6cff9f;"/>
+
+    <Button text="← Accueil" onAction="#onRetourAccueil"
+            style="-fx-background-color: transparent; -fx-text-fill: black;"/>
+
+</VBox>

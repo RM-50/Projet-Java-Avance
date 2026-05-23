@@ -16,7 +16,19 @@
         suivre leur fabrication, recevoir les numéros de série et vérifier leur validité.
     </description>
 
+    <repositories>
+        <repository>
+            <id>github-fabricateur</id>
+            <name>GitHub Packages - Fabricateur (privé)</name>
+            <url>https://maven.pkg.github.com/le-prof-de-raizo/repo-maven</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
+
     <properties>
+        <fabricateur.version>0.0.1</fabricateur.version>
+
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -36,6 +48,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>bernard-flou</groupId>
+            <artifactId>fabricateur</artifactId>
+            <version>${fabricateur.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
