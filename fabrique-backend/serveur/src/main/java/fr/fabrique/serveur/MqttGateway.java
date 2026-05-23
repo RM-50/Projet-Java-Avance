@@ -3,7 +3,6 @@ package fr.fabrique.serveur;
 import fr.fabrique.usine.Usine;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Passerelle MQTT du backend.
  */
-public class MqttGateway implements MqttCallback {
+public class MqttGateway implements MqttCallback{
 
     private static final Logger LOG = LoggerFactory.getLogger(MqttGateway.class);
 
@@ -43,7 +42,7 @@ public class MqttGateway implements MqttCallback {
 
         MqttConnectOptions options = new MqttConnectOptions();
         options.setCleanSession(true);
-        options.setAutomaticReconnect(true);   // Paho gère la reconnexion automatiquement
+        options.setAutomaticReconnect(true);
         options.setConnectionTimeout(10);
         options.setKeepAliveInterval(20);
 
@@ -55,9 +54,6 @@ public class MqttGateway implements MqttCallback {
         LOG.info("Abonnements actifs : '{}', '{}'", TOPIC_ORDERS, TOPIC_SERIALS);
     }
 
-    /**
-     * Déconnecte proprement : attend la fin des traitements en cours (max 30s).
-     */
     public void stop() {
         LOG.info("Arrêt de la passerelle MQTT...");
         pool.shutdown();
@@ -81,12 +77,6 @@ public class MqttGateway implements MqttCallback {
         }
     }
 
-    /**
-     * Publie un message sur un topic.
-     *
-     * @param topic   le topic de destination
-     * @param payload le contenu du message (chaîne UTF-8)
-     */
     public void publier(String topic, String payload) {
         try {
             MqttMessage message = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
@@ -99,10 +89,6 @@ public class MqttGateway implements MqttCallback {
         }
     }
 
-    /**
-     * Appelée par Paho à chaque message reçu.
-     * On identifie le topic et on délègue à un thread du pool.
-     */
     @Override
     public void messageArrived(String topic, MqttMessage message) {
         byte[] payload = message.getPayload();
@@ -131,7 +117,6 @@ public class MqttGateway implements MqttCallback {
 
     @Override
     public void connectionLost(Throwable cause) {
-        // automaticReconnect=true : Paho va se reconnecter tout seul
         LOG.warn("Connexion perdue : {} — reconnexion automatique en cours", cause.getMessage());
     }
 
@@ -140,7 +125,6 @@ public class MqttGateway implements MqttCallback {
         // Non utilisé côté abonné
     }
 
-    /** Vérifie que le topic est de la forme {@code orders/<id>} */
     private boolean matcheOrders(String topic) {
         String[] parts = topic.split("/");
         return parts.length == 2 && "orders".equals(parts[0]);
