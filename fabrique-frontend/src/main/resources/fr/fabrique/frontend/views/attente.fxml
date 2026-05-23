@@ -12,12 +12,13 @@
 
     <ProgressIndicator fx:id="spinner" progress="-1"
                        style="-fx-pref-width: 80; -fx-pref-height: 80;"/>
-
+    <ProgressBar fx:id="progressBar" progress="0" prefWidth="400"
+                 style="-fx-accent: #6c63ff;"/>
     <Label fx:id="lblStatut" text=""
            style="-fx-font-size: 14; -fx-text-fill: #a0a0cc;"/>
 
     <VBox fx:id="panneauResultat" visible="false" alignment="CENTER" spacing="12">
-        <Label text="✅ Vos lunettes sont prêtes !"
+        <Label text="Vos lunettes sont prêtes !"
                style="-fx-font-size: 18; -fx-text-fill: #6cff9f;"/>
         <Label text="Numéros de série :"
                style="-fx-text-fill: #a0a0cc;"/>
@@ -28,7 +29,7 @@
     </VBox>
 
     <VBox fx:id="panneauErreur" visible="false" alignment="CENTER" spacing="12">
-        <Label text="❌ Commande non traitée"
+        <Label text="Commande non traitée"
                style="-fx-font-size: 18; -fx-text-fill: #ff6c6c;"/>
         <Label fx:id="lblErreurDetail" text=""
                style="-fx-text-fill: #a0a0cc; -fx-wrap-text: true; -fx-max-width: 500;"/>
