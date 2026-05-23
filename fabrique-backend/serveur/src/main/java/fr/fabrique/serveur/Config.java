@@ -23,7 +23,8 @@ public record Config(
         String brokerUrl,
         String clientIdPrefix,
         int qos,
-        int fabricateurCapacity
+        int fabricateurCapacity,
+        String usineMode          // "autonome" ou "mutualise"
 ) {
 
     private static final Logger LOG = LoggerFactory.getLogger(Config.class);
@@ -58,7 +59,9 @@ public record Config(
                 props.getProperty("mqtt.broker.url", "tcp://localhost:1883"),
                 props.getProperty("mqtt.client.id.prefix", "fabrique-serveur"),
                 Integer.parseInt(props.getProperty("mqtt.qos", "1")),
-                Integer.parseInt(props.getProperty("usine.capacity", "0")) // 0 = aléatoire
+                Integer.parseInt(props.getProperty("usine.capacity", "0")),
+                props.getProperty("usine.mode", "autonome")
         );
     }
 }
+
