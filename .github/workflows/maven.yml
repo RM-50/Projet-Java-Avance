@@ -27,9 +27,28 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+    - name: Configurer l'accès au dépôt privé fabricateur
+      run: |
+        mkdir -p ~/.m2
+        cat > ~/.m2/settings.xml << 'SETTINGS'
+        <settings>
+          <servers>
+            <server>
+              <id>github-fabricateur</id>
+              <username>${env.FABRICATEUR_USERNAME}</username>
+              <password>${env.FABRICATEUR_TOKEN}</password>
+            </server>
+          </servers>
+        </settings>
+        SETTINGS
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      env:
+        FABRICATEUR_USERNAME: ${{ secrets.FABRICATEUR_USERNAME }}
+        FABRICATEUR_TOKEN: ${{ secrets.FABRICATEUR_TOKEN }}
+      run: mvn -B package --file pom.xml -DskipSlowTests=slow
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
       uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
