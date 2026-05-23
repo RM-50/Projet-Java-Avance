@@ -11,7 +11,7 @@ import java.util.Map;
  * Immuable : la map des quantités ne peut pas être modifiée après construction.
  *
  * @param orderId        Identifiant unique (UUID) de la commande
- * @param typesQuantites Association TypeLunette → quantité désirée
+ * @param typesQuantites Association TypeLunette -> quantité désirée
  */
 public record Commande(String orderId, Map<TypeLunette, Integer> typesQuantites) {
 

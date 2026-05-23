@@ -1,6 +1,9 @@
 package fr.fabrique.serveur;
 
+import bernard_flou.Fabricateur;
+import fr.fabrique.usine.Dispatcher;
 import fr.fabrique.usine.UsineImpl;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +27,41 @@ public final class Main {
         LOG.info("=== Démarrage du serveur Fabrique ===");
         try {
             Config config = Config.load();
-            LOG.info("Configuration chargée : broker={}", config.brokerUrl());
+            LOG.info("Broker={}, capacité={}, mode={}",
+                    config.brokerUrl(), config.fabricateurCapacity(), config.usineMode());
 
-            LOG.warn("Squelette : la passerelle MQTT n'est pas encore branchée.");
+            Fabricateur fabricateur = config.fabricateurCapacity() > 0
+                    ? new Fabricateur(config.fabricateurCapacity())
+                    : new Fabricateur();
+
+            Dispatcher dispatcher = null;
+            UsineImpl usine;
+
+            if ("mutualise".equalsIgnoreCase(config.usineMode())) {
+                dispatcher = new Dispatcher(fabricateur);
+                usine = new UsineImpl(fabricateur, dispatcher);
+                LOG.info("Mode mutualisé activé");
+            } else {
+                usine = new UsineImpl(fabricateur);
+                LOG.info("Mode séquentiel activé");
+            }
+
+            MqttGateway gateway = new MqttGateway(config, usine);
+            gateway.start();
+
+            final Dispatcher dispatcherFinal = dispatcher;
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                LOG.info("Signal d'arrêt reçu — fermeture en cours...");
+                gateway.stop();
+                if (dispatcherFinal != null) dispatcherFinal.arreter();
+                LOG.info("=== Serveur Fabrique arrêté ===");
+            }, "shutdown-hook"));
+
+            LOG.info("=== Serveur opérationnel — en attente de commandes ===");
+            Thread.currentThread().join();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         } catch (Exception e) {
             LOG.error("Démarrage impossible", e);
             System.exit(1);

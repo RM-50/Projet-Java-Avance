@@ -8,16 +8,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Vérifie la validité d'un numéro de série
- * <p>
- * Déclenché par un message sur {@code serials/<serial>/check}.
- * Utilise la méthode statique {@link Fabricateur#validateSerial(String)}
- * et publie la réponse sur {@code serials/<serial>}.
- * <p>
- * Réponse :
- * <ul>
- *   <li>S/N valide -> {@code SERIAL_RESULT|serial:...|type:CLAUDE} (ou autre type)</li>
- *   <li>S/N invalide -> {@code SERIAL_RESULT|serial:...|type:invalid}</li>
- * </ul>
  */
 public class SerialChecker {
 
