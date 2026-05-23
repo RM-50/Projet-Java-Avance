@@ -1,9 +1,11 @@
 package fr.fabrique.frontend.controller;
 
+import bernard_flou.Fabricateur.TypeLunette;
 import fr.fabrique.frontend.SceneRouter;
 import fr.fabrique.frontend.model.CatalogueLoader;
 import fr.fabrique.frontend.model.Panier;
 import fr.fabrique.frontend.model.Produit;
+import fr.fabrique.frontend.serial.FrontendSerializers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,7 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Contrôleur de l'écran catalogue.
@@ -33,7 +38,6 @@ public class CatalogueController {
     @FXML
     public void initialize() {
         panier.quantitesProperty().addListener((obs, o, n) -> rafraichirPanier());
-
         chargerCatalogue();
     }
 
@@ -111,8 +115,31 @@ public class CatalogueController {
     @FXML
     private void onPasserCommande() {
         if (panier.estVide()) return;
-        LOG.info("Commande passée : {}", panier.getQuantites());
-        router().allerAttente("orderId");
+
+        String orderId = UUID.randomUUID().toString();
+
+        Map<TypeLunette, Integer> quantites = new HashMap<>();
+        panier.getQuantites().forEach((produitId, qte) -> {
+            if (qte > 0) {
+                try {
+                    TypeLunette type = TypeLunette.valueOf(produitId.toUpperCase());
+                    quantites.put(type, qte);
+                } catch (IllegalArgumentException e) {
+                    LOG.warn("Produit {} ne correspond à aucun TypeLunette", produitId);
+                }
+            }
+        });
+
+        if (quantites.isEmpty()) {
+            LOG.warn("Panier non vide mais aucune correspondance TypeLunette trouvée");
+            return;
+        }
+
+        String payload = FrontendSerializers.encoderCommande(orderId, quantites);
+        router().getMqttClient().publier("orders/" + orderId, payload);
+        LOG.info("Commande {} publiée sur MQTT : {}", orderId, quantites);
+
+        router().allerAttente(orderId);
     }
 
     private SceneRouter router() {
