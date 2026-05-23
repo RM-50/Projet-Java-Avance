@@ -26,7 +26,7 @@ public final class CatalogueLoader {
     private static final Pattern P_STR   = Pattern.compile("\"(%s)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
     private static final Pattern P_NUM   = Pattern.compile("\"price\"\\s*:\\s*([0-9]+(?:\\.[0-9]+)?)");
 
-    private CatalogueLoader() { /* utilitaire */ }
+    private CatalogueLoader() {}
 
     /**
      * Charge et retourne la liste des produits du catalogue
