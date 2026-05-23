@@ -23,7 +23,7 @@ import java.util.concurrent.*;
 public class AttenteController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AttenteController.class);
-    private static final int TIMEOUT_DEFAUT_MS = 30_000;
+    private static final int TIMEOUT_DEFAUT_MS = 30000;
 
     @FXML private Label             lblTitre;
     @FXML private ProgressIndicator spinner;

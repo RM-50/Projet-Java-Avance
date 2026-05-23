@@ -6,7 +6,6 @@ import javafx.scene.control.Button;
 
 /**
  * Contrôleur de l'écran d'accueil.
- * Récupère le {@link SceneRouter}
  */
 public class AccueilController {
 
