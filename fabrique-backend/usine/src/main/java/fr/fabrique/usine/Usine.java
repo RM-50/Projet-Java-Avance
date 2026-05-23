@@ -5,6 +5,7 @@ import bernard_flou.Fabricateur.TypeLunette;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public interface Usine {
 
@@ -17,4 +18,8 @@ public interface Usine {
      * @throws UsineException en cas d'échec de fabrication
      */
     List<Lunette> produire(Map<TypeLunette, Integer> typesLunettes) throws UsineException;
+    default List<Lunette> produire(Map<TypeLunette, Integer> typesLunettes, Consumer<String> onStatut) throws UsineException {
+        return produire(typesLunettes);
+    }
 }
+

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implémentation de l'{@link Usine}.
@@ -18,18 +20,28 @@ public class UsineImpl implements Usine {
     private static final Logger LOG = LoggerFactory.getLogger(UsineImpl.class);
 
     private final Fabricateur fabricateur;
+    private final ReentrantLock lockConfigurer = new ReentrantLock();
+    private final ExecutorService pool;
+    private final Dispatcher dispatcher;
 
     public UsineImpl(int capacity){
-        this.fabricateur = new Fabricateur(capacity);
+        this(new Fabricateur(capacity), null);
     }
 
     public UsineImpl(Fabricateur fabricateur) {
-        this.fabricateur = fabricateur;
-        LOG.info("Usine initialisée avec une capacité de {}", fabricateur.getCapacity());
+        this(fabricateur, null);
     }
 
     public UsineImpl() {
-        this(new Fabricateur());
+        this(new Fabricateur(), null);
+    }
+
+    public UsineImpl(Fabricateur fabricateur, Dispatcher dispatcher) {
+        this.fabricateur = fabricateur;
+        this.dispatcher  = dispatcher;
+        this.pool        = Executors.newFixedThreadPool(fabricateur.getCapacity());
+        LOG.info("Usine initialisée — capacité={}, mode={}",
+                fabricateur.getCapacity(), dispatcher != null ? "mutualisé" : "séquentiel");
     }
 
     /**
@@ -39,27 +51,96 @@ public class UsineImpl implements Usine {
      */
     @Override
     public List<Lunette> produire(Map<TypeLunette, Integer> typesLunettes) throws UsineException {
-        LOG.info("Démarrage production : {}", typesLunettes);
+        return produire(typesLunettes, null);
+    }
+
+    @Override
+    public List<Lunette> produire(Map<TypeLunette, Integer> typesLunettes,
+                                  java.util.function.Consumer<String> onStatut)
+            throws UsineException {
         validerCommande(typesLunettes);
 
+        if (onStatut != null) onStatut.accept("processing");
+
+        List<Lunette> lunettes;
+        if (dispatcher != null) {
+            lunettes = produireViaDispatcher(typesLunettes);
+        } else {
+            lunettes = produireSequentiel(typesLunettes);
+        }
+
+        if (onStatut != null) onStatut.accept("processed");
+        return lunettes;
+    }
+
+    private List<Lunette> produireSequentiel(Map<TypeLunette, Integer> typesLunettes)
+            throws UsineException {
+        LOG.info("Production séquentielle : {}", typesLunettes);
         List<TypeLunette> file = transformerEnListe(typesLunettes);
-        int total = file.size();
+        int total    = file.size();
         int capacity = fabricateur.getCapacity();
-        LOG.debug("Total à produire : {} en lots de {}", total, capacity);
+        LOG.debug("Total : {} lunettes en lots de {}", total, capacity);
 
-        List<Lunette> lunettes = new ArrayList<>(total);
-
-        // Découpage en lots
+        List<Lunette> toutes = new ArrayList<>(total);
         int debut = 0;
         while (debut < total) {
             int fin = Math.min(debut + capacity, total);
-            List<TypeLunette> lot = file.subList(debut, fin);
-            lunettes.addAll(fabriquerLot(lot));
+            toutes.addAll(fabriquerLotParallele(file.subList(debut, fin)));
             debut = fin;
         }
+        LOG.info("Production séquentielle terminée : {} lunettes", toutes.size());
+        return toutes;
+    }
 
-        LOG.info("Production terminée : {} lunettes fabriquées", lunettes.size());
-        return lunettes;
+    private List<Lunette> fabriquerLotParallele(List<TypeLunette> lot) throws UsineException {
+        lockConfigurer.lock();
+        try {
+            LOG.debug("Configuration lot {} emplacements", lot.size());
+            fabricateur.configurer(lot.toArray(new TypeLunette[0]));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            throw new UsineException("Erreur de configuration : " + e.getMessage(), e);
+        } finally {
+            lockConfigurer.unlock();
+        }
+
+        List<Future<Lunette>> futures = new ArrayList<>(lot.size());
+        for (TypeLunette type : lot) {
+            futures.add(pool.submit(() -> {
+                LOG.debug("fabriquer({}) sur {}", type, Thread.currentThread().getName());
+                return fabricateur.fabriquer(type);
+            }));
+        }
+
+        List<Lunette> produites = new ArrayList<>(lot.size());
+        for (Future<Lunette> future : futures) {
+            try {
+                produites.add(future.get());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new UsineException("Fabrication interrompue", e);
+            } catch (ExecutionException e) {
+                throw new UsineException(
+                        "Erreur de fabrication : " + e.getCause().getMessage(), e.getCause());
+            }
+        }
+        return produites;
+    }
+
+    private List<Lunette> produireViaDispatcher(Map<TypeLunette, Integer> typesLunettes)
+            throws UsineException {
+        LOG.info("Production via dispatcher : {}", typesLunettes);
+        CompletableFuture<List<Lunette>> future = dispatcher.soumettre(typesLunettes);
+        try {
+            List<Lunette> lunettes = future.get(); // bloque jusqu'à la fin de la production
+            LOG.info("Production dispatcher terminée : {} lunettes", lunettes.size());
+            return lunettes;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new UsineException("Production interrompue", e);
+        } catch (ExecutionException e) {
+            throw new UsineException(
+                    "Erreur de production : " + e.getCause().getMessage(), e.getCause());
+        }
     }
 
     /**
@@ -95,33 +176,5 @@ public class UsineImpl implements Usine {
             }
         }
         return result;
-    }
-
-
-    /**
-     * Configure la machine pour un lot, puis déclenche la fabrication de chaque lunette.
-     */
-    private List<Lunette> fabriquerLot(List<TypeLunette> lot) throws UsineException {
-        TypeLunette[] tableau = lot.toArray(new TypeLunette[0]);
-        LOG.debug("Configuration du lot : {}", lot);
-        try {
-            fabricateur.configurer(tableau);
-        } catch (IllegalStateException | IllegalArgumentException e) {
-            throw new UsineException("Erreur lors de la configuration de la machine : " + e.getMessage(), e);
-        }
-
-        // Fabrication séquentielle des lunettes du lot
-        List<Lunette> produites = new ArrayList<>(lot.size());
-        for (TypeLunette type : lot) {
-            LOG.debug("Fabrication d'une lunette {}", type);
-            try {
-                Lunette lunette = fabricateur.fabriquer(type);
-                produites.add(lunette);
-                LOG.debug("Lunette produite : {} / {}", lunette.type, lunette.serial);
-            } catch (IllegalStateException | IllegalArgumentException e) {
-                throw new UsineException("Erreur de fabrication pour le type " + type + " : " + e.getMessage(), e);
-            }
-        }
-        return produites;
     }
 }
