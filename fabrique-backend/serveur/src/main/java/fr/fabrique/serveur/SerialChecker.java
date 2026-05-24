@@ -21,9 +21,13 @@ public class SerialChecker {
         this.gateway = gateway;
     }
 
+    /**
+     * Méthode handle qui valide un numéro de série
+     */
     public void handle() {
         LOG.info("[serial={}] Verification", serial);
 
+        // Utilisation de la méthode fournie dans le Fabricateur
         TypeLunette type = Fabricateur.validateSerial(serial);
 
         if (type != null) {

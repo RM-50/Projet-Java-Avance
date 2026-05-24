@@ -34,6 +34,7 @@ public record Config(
     public static Config load() throws IOException {
         Properties props = new Properties();
 
+        // Chargement du fichier de configuration
         String sysPath = System.getProperty(SYS_PROP);
         if (sysPath != null) {
             LOG.info("Chargement de la config depuis -D{} = {}", SYS_PROP, sysPath);

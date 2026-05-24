@@ -33,10 +33,15 @@ public class MqttGateway implements MqttCallback{
         this.usine = usine;
     }
 
+    /**
+     * Méthode start qui sert à démarrer le client MQTT
+     * @throws MqttException
+     */
     public void start() throws MqttException {
         String clientId = config.clientIdPrefix() + "-" + UUID.randomUUID();
         LOG.info("Connexion au broker {} avec clientId={}", config.brokerUrl(), clientId);
 
+        // Initialisation du client MQTT
         client = new MqttClient(config.brokerUrl(), clientId, new MemoryPersistence());
         client.setCallback(this);
 
@@ -46,6 +51,7 @@ public class MqttGateway implements MqttCallback{
         options.setConnectionTimeout(10);
         options.setKeepAliveInterval(20);
 
+        // Connexion au broker MQTT
         client.connect(options);
         LOG.info("Connecte au broker MQTT");
 
@@ -77,6 +83,11 @@ public class MqttGateway implements MqttCallback{
         }
     }
 
+    /**
+     * Méthode publier permet de publier un payload sur un topic
+     * @param topic topic sur lequel on souhaite publier
+     * @param payload payload que l'on souhaite envoyer
+     */
     public void publier(String topic, String payload) {
         try {
             MqttMessage message = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
@@ -125,12 +136,15 @@ public class MqttGateway implements MqttCallback{
         // Non utilisé côté abonné
     }
 
+    /**
+     * Méthode matcheOrders qui vérifie que le topic est de la forme orders/{uuid}
+     */
     private boolean matcheOrders(String topic) {
         String[] parts = topic.split("/");
         return parts.length == 2 && "orders".equals(parts[0]);
     }
 
-    /** Vérifie que le topic est de la forme {@code serials/<serial>/check}. */
+    /** Méthode matcheSerials qui vérifie que le topic est de la forme {@code serials/<serial>/check}. */
     private boolean matcheSerials(String topic) {
         String[] parts = topic.split("/");
         return parts.length == 3 && "serials".equals(parts[0]) && "check".equals(parts[2]);
