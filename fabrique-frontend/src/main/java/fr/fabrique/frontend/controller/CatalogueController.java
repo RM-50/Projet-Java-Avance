@@ -61,6 +61,22 @@ public class CatalogueController {
         carte.setStyle("-fx-background-color: #16213e; -fx-padding: 20; "
                 + "-fx-background-radius: 12; -fx-min-width: 200;");
 
+        String cheminImage = "/images/" + p.id() + ".png";
+        var imageUrl = getClass().getResourceAsStream(cheminImage);
+        if (imageUrl != null) {
+            javafx.scene.image.Image img =
+                    new javafx.scene.image.Image(imageUrl);
+            javafx.scene.image.ImageView imageView =
+                    new javafx.scene.image.ImageView(img);
+            imageView.setFitWidth(160);
+            imageView.setFitHeight(100);
+            imageView.setPreserveRatio(true);
+            imageView.setStyle("-fx-alignment: CENTER;");
+            carte.getChildren().add(imageView);
+        } else {
+            LOG.warn("Image introuvable pour le produit : {}", p.id());
+        }
+
         Label nom   = new Label(p.name());
         nom.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: white;");
 
