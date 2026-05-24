@@ -5,6 +5,7 @@ import fr.fabrique.frontend.SceneRouter;
 import fr.fabrique.frontend.model.CatalogueLoader;
 import fr.fabrique.frontend.model.Panier;
 import fr.fabrique.frontend.model.Produit;
+import fr.fabrique.frontend.mqtt.MqttFrontendClient;
 import fr.fabrique.frontend.serial.FrontendSerializers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -116,8 +117,16 @@ public class CatalogueController {
     private void onPasserCommande() {
         if (panier.estVide()) return;
 
+        MqttFrontendClient client = router().getMqttClient();
         String orderId = UUID.randomUUID().toString();
 
+        // 1. Naviguer vers l'attente — positionne le callback
+        router().allerAttente(orderId);
+
+        // 2. S'abonner
+        client.abonner("orders/" + orderId + "/+");
+
+        // 3. Publier en dernier
         Map<TypeLunette, Integer> quantites = new HashMap<>();
         panier.getQuantites().forEach((produitId, qte) -> {
             if (qte > 0) {
@@ -136,10 +145,8 @@ public class CatalogueController {
         }
 
         String payload = FrontendSerializers.encoderCommande(orderId, quantites);
-        router().getMqttClient().publier("orders/" + orderId, payload);
+        client.publier("orders/" + orderId, payload);
         LOG.info("Commande {} publiée sur MQTT : {}", orderId, quantites);
-
-        router().allerAttente(orderId);
     }
 
     private SceneRouter router() {

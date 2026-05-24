@@ -57,7 +57,6 @@ public class AttenteController {
         this.topicSub   = topicBase + "/+";
 
         mqttClient.setMessageCallback(this::onMessageRecu);
-        mqttClient.abonner(topicSub);
 
         demarrerTimeout(lireTimeoutMs());
         LOG.info("Attente commande {} (timeout {}ms)", orderId, lireTimeoutMs());
