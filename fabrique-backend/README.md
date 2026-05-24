@@ -36,7 +36,7 @@ Dans `~/.m2/settings.xml`, ajoutez :
     <server>
       <id>github-fabricateur</id>
       <username>le-prof-de-raizo</username>
-      <password>VOTRE_PERSONAL_ACCESS_TOKEN</password>
+      <password>TOKEN</password>
     </server>
   </servers>
 </settings>
@@ -68,10 +68,3 @@ Voir `serveur/src/main/resources/config.properties` pour les options.
 | `mqtt.client.id.prefix` | `fabrique-serveur` | Préfixe du clientId MQTT |
 | `mqtt.qos` | `1` | Qualité de service MQTT |
 | `usine.capacity` | `0` | Capacité du fabricateur (0 = aléatoire) |
-
-## CI/CD
-
-- **CI** (`.github/workflows/ci.yml`) : build + tests à chaque push/PR.
-- **Publication usine** (`.github/workflows/release-usine.yml`) :
-  publie le `.jar` de l'usine sur GitHub Packages quand une release est créée.
-  La version est extraite du tag (ex. tag `v1.0.0` → version Maven `1.0.0`).
