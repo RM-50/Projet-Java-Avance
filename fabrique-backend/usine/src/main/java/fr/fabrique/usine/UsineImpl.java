@@ -74,8 +74,13 @@ public class UsineImpl implements Usine {
         return lunettes;
     }
 
-    private List<Lunette> produireSequentiel(Map<TypeLunette, Integer> typesLunettes)
-            throws UsineException {
+    /**
+     * Méthode produireSequentiel qui produit des commandes de manière séquentielle
+     * @param typesLunettes la commande sous forme de map
+     * @return renvoie les lunettes fabriquées
+     * @throws UsineException
+     */
+    private List<Lunette> produireSequentiel(Map<TypeLunette, Integer> typesLunettes) throws UsineException {
         LOG.info("Production séquentielle : {}", typesLunettes);
         List<TypeLunette> file = transformerEnListe(typesLunettes);
         int total    = file.size();
@@ -93,6 +98,12 @@ public class UsineImpl implements Usine {
         return toutes;
     }
 
+    /**
+     * Méthode fabriquerLotParallele qui permet de fabriquer les lots de manière parallèle
+     * @param lot liste des Type Lunette à fabriquer
+     * @return la liste des lunettes fabriquées
+     * @throws UsineException
+     */
     private List<Lunette> fabriquerLotParallele(List<TypeLunette> lot) throws UsineException {
         lockConfigurer.lock();
         try {
@@ -104,6 +115,7 @@ public class UsineImpl implements Usine {
             lockConfigurer.unlock();
         }
 
+        // On lance la production
         List<Future<Lunette>> futures = new ArrayList<>(lot.size());
         for (TypeLunette type : lot) {
             futures.add(pool.submit(() -> {
@@ -112,6 +124,7 @@ public class UsineImpl implements Usine {
             }));
         }
 
+        // On récupère les lunettes une fois produites
         List<Lunette> produites = new ArrayList<>(lot.size());
         for (Future<Lunette> future : futures) {
             try {
@@ -127,11 +140,17 @@ public class UsineImpl implements Usine {
         return produites;
     }
 
+    /**
+     * Méthode produireViaDispatcher qui permet de mutualiser les commandes
+     * @param typesLunettes commandes sous forme de map
+     * @return la liste des lunettes
+     * @throws UsineException
+     */
     private List<Lunette> produireViaDispatcher(Map<TypeLunette, Integer> typesLunettes)
             throws UsineException {
         LOG.info("Production via dispatcher : {}", typesLunettes);
 
-        // Aplatir la commande en liste
+        // Transformer la commande en liste
         List<TypeLunette> file = transformerEnListe(typesLunettes);
         int capacity = fabricateur.getCapacity();
 

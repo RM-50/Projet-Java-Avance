@@ -35,6 +35,11 @@ public class Dispatcher {
         LOG.info("Dispatcher demarre — capacite machine : {}", capacity);
     }
 
+    /**
+     * Méthode soumettre qui permet d'ajouter une commande dans la file
+     * @param typesLunettes map correspondant à une commande
+     * @return une promesse correspondant à la liste des lunettes fabriquées
+     */
     public CompletableFuture<List<Lunette>> soumettre(Map<TypeLunette, Integer> typesLunettes) {
         DemandeLot demande = new DemandeLot(typesLunettes);
         file.add(demande);
@@ -42,12 +47,18 @@ public class Dispatcher {
         return demande.future;
     }
 
+    /**
+     * Méthode arrêter qui permet d'arrêter la production
+     */
     public void arreter() {
         actif = false;
         dispatcherThread.interrupt();
         poolFabrication.shutdown();
     }
 
+    /**
+     * Méthode boucleDispatch qui permet de couper la file de commande en lots pour les envoyer au fabricateur
+     */
     private void boucleDispatch() {
         while (actif) {
             try {
@@ -79,6 +90,10 @@ public class Dispatcher {
         }
     }
 
+    /**
+     * Méthode traiterGroupe qui permet de traiter un groupe formé par le {@link Dispatcher#boucleDispatch() dispatcher}
+     * @param groupe groupe à traiter
+     */
     private void traiterGroupe(List<DemandeLot> groupe) {
 
         List<TypeLunette> tousLesTypes = new ArrayList<>();
@@ -95,6 +110,7 @@ public class Dispatcher {
             indices.add(idx);
         }
 
+        // On place un verrou pour être Thread Safe
         lockConfigurer.lock();
         try {
             fabricateur.configurer(tousLesTypes.toArray(new TypeLunette[0]));
@@ -107,11 +123,13 @@ public class Dispatcher {
             lockConfigurer.unlock();
         }
 
+        // On lance la fabrication
         List<Future<Lunette>> futures = new ArrayList<>(tousLesTypes.size());
         for (TypeLunette type : tousLesTypes) {
             futures.add(poolFabrication.submit(() -> fabricateur.fabriquer(type)));
         }
 
+        // On récupère les lunettes une fois fabriquées
         List<Lunette> toutesLesLunettes = new ArrayList<>(tousLesTypes.size());
         for (Future<Lunette> f : futures) {
             try {
@@ -128,6 +146,7 @@ public class Dispatcher {
             }
         }
 
+        // On reconstruit la commande
         for (int i = 0; i < groupe.size(); i++) {
             List<Lunette> lunettesDeLaDemande = new ArrayList<>();
             for (int idx : indices.get(i)) {
