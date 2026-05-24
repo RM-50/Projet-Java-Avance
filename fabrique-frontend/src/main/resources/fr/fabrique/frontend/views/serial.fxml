@@ -24,7 +24,12 @@
     </HBox>
 
     <Label fx:id="lblResultat" text="" wrapText="true"
-           style="-fx-font-size: 15; -fx-text-fill: #6cff9f;"/>
+           style="-fx-font-size: 15; -fx-text-fill: green;"/>
+
+    <Button fx:id="btnRetourResultats" text="← Retour aux résultats"
+            onAction="#onRetourResultats" visible="false" managed="false"
+            style="-fx-background-color: #444466; -fx-text-fill: white;
+                   -fx-padding: 8 20; -fx-background-radius: 6;"/>
 
     <Button text="← Accueil" onAction="#onRetourAccueil"
             style="-fx-background-color: transparent; -fx-text-fill: black;"/>

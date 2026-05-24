@@ -13,18 +13,20 @@
     <ProgressIndicator fx:id="spinner" progress="-1"
                        style="-fx-pref-width: 80; -fx-pref-height: 80;"/>
     <ProgressBar fx:id="progressBar" progress="0" prefWidth="400"
-                 style="-fx-accent: #6c63ff;"/>
+                 style="-fx-accent: green;"/>
     <Label fx:id="lblStatut" text=""
-           style="-fx-font-size: 14; -fx-text-fill: #a0a0cc;"/>
+           style="-fx-font-size: 14; -fx-text-fill: black;"/>
 
     <VBox fx:id="panneauResultat" visible="false" alignment="CENTER" spacing="12">
         <Label text="Vos lunettes sont prêtes !"
-               style="-fx-font-size: 18; -fx-text-fill: #6cff9f;"/>
+               style="-fx-font-size: 18; -fx-text-fill: green;"/>
         <Label text="Numéros de série :"
-               style="-fx-text-fill: #a0a0cc;"/>
+               style="-fx-text-fill: black;"/>
         <ListView fx:id="listSerials"
                   style="-fx-background-color: #16213e; -fx-pref-height: 180;"/>
-        <Button text="Nouvelle commande" onAction="#onNouvelleCommande"
+        <Label text="Cliquez sur un numéro pour le vérifier"
+               style="-fx-text-fill: black; -fx-font-size: 11; -fx-font-style: italic;"/>
+        <Button text="Retour à l'accueil" onAction="#onNouvelleCommande"
                 style="-fx-background-color: #6c63ff; -fx-text-fill: white; -fx-padding: 10 24; -fx-background-radius: 6;"/>
     </VBox>
 

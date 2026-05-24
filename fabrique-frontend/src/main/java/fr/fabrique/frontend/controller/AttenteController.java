@@ -147,12 +147,28 @@ public class AttenteController {
         Platform.runLater(() -> lblStatut.setText(statut));
     }
 
-    public void afficherResultat(java.util.List<String> serials) {
+    public void afficherResultat(List<String> serials) {
         annulerTimeout();
+        router().sauvegarderResultats(orderId, serials);
         spinner.setVisible(false);
         progressBar.setProgress(1.0);
         lblTitre.setText("Commande livrée !");
-        listSerials.getItems().setAll(serials);
+
+        listSerials.getItems().clear();
+        listSerials.getItems().addAll(serials);
+
+        listSerials.setOnMouseClicked(event -> {
+            String selected = listSerials.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                seDesabonner();
+                router().allerVerificationSerial(selected, orderId);  // passer orderId
+            }
+        });
+
+        listSerials.setStyle(
+                "-fx-background-color: #16213e; -fx-pref-height: 180; " +
+                        "-fx-cursor: hand;");
+
         panneauResultat.setVisible(true);
     }
 
@@ -184,5 +200,15 @@ public class AttenteController {
             router = (SceneRouter) lblTitre.getScene().getRoot().getUserData();
         }
         return router;
+    }
+
+    public void restaurerResultats(String orderId, List<String> serials, MqttFrontendClient client) {
+        this.orderId    = orderId;
+        this.mqttClient = client;
+        this.topicBase  = "orders/" + orderId;
+        this.topicSub   = topicBase + "/+";
+
+        // Afficher directement les résultats sans timeout ni spinner
+        Platform.runLater(() -> afficherResultat(serials));
     }
 }
