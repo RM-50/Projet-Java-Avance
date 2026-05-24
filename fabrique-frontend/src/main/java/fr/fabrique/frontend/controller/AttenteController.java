@@ -50,6 +50,7 @@ public class AttenteController {
         progressBar.setProgress(0);
     }
 
+
     public void initialiserCommande(String orderId, MqttFrontendClient client) {
         this.orderId    = orderId;
         this.mqttClient = client;
@@ -62,6 +63,11 @@ public class AttenteController {
         LOG.info("Attente commande {} (timeout {}ms)", orderId, lireTimeoutMs());
     }
 
+    /**
+     * Méthode onMessageRecu qui s'occupe de traiter les messages envoyés par l'usine
+     * @param topic
+     * @param payload
+     */
     private void onMessageRecu(String topic, String payload) {
         if (!topic.startsWith(topicBase)) return;
 
@@ -113,6 +119,10 @@ public class AttenteController {
         }
     }
 
+    /**
+     * Méthode démarrerTimeout qui permet de lancer un chronomère. Si pas de réponse au bout du délais la commande est annulées
+     * @param delaiMs
+     */
     private void demarrerTimeout(int delaiMs) {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         timeoutTask = scheduler.schedule(() ->
@@ -124,11 +134,18 @@ public class AttenteController {
         );
     }
 
+    /**
+     * Méthode annulerTimeout qui annule le chronomètre
+     */
     private void annulerTimeout() {
         if (timeoutTask != null) timeoutTask.cancel(false);
         if (scheduler != null)  scheduler.shutdownNow();
     }
 
+    /**
+     * Méthode lireTimeoutMs qui permet de récupérer le délais de time dans le fichier config.properties
+     * @return le délais
+     */
     private int lireTimeoutMs() {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             if (in != null) {
@@ -143,10 +160,19 @@ public class AttenteController {
         return TIMEOUT_DEFAUT_MS;
     }
 
+    /**
+     * Méthode afficherStatut qui permet d'afficher le statut d'une commande
+     * @param statut
+     */
     public void afficherStatut(String statut) {
         Platform.runLater(() -> lblStatut.setText(statut));
     }
 
+    /**
+     * Méthode afficherRésultat qui affiche les numéros de série des lunettes recues sous la forme d'une liste de lien cliquable.
+     * Cliquer sur un lien redirige sur la page de validation du numéro de série en préremplissant le champ.
+     * @param serials
+     */
     public void afficherResultat(List<String> serials) {
         annulerTimeout();
         router().sauvegarderResultats(orderId, serials);
@@ -172,6 +198,10 @@ public class AttenteController {
         panneauResultat.setVisible(true);
     }
 
+    /**
+     * Méthode afficherErreur qui permet en cas d'erreur d'afficher le message sur l'interface utilisateur
+     * @param detail
+     */
     public void afficherErreur(String detail) {
         annulerTimeout();
         seDesabonner();
@@ -181,6 +211,9 @@ public class AttenteController {
         panneauErreur.setVisible(true);
     }
 
+    /**
+     * Méthode seDesabonner qui permet de se désabonner d'un topic
+     */
     private void seDesabonner() {
         if (mqttClient != null && topicSub != null) {
             mqttClient.desabonner(topicSub);
@@ -202,6 +235,12 @@ public class AttenteController {
         return router;
     }
 
+    /**
+     * Permet de réafficher les numéros de série des lunettes reçues après acoir cliqué sur un lien de la liste et être revenu en arrière
+     * @param orderId
+     * @param serials
+     * @param client
+     */
     public void restaurerResultats(String orderId, List<String> serials, MqttFrontendClient client) {
         this.orderId    = orderId;
         this.mqttClient = client;

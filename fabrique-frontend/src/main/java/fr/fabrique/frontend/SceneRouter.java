@@ -81,6 +81,10 @@ public class SceneRouter {
     }
 
 
+    /**
+     * Charger vue fxml
+     * @param fxmlNom
+     */
     private void charger(String fxmlNom) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -106,6 +110,11 @@ public class SceneRouter {
         }
     }
 
+    /**
+     * Route vers la page de vérification
+     * @param serialPreRempli
+     * @param orderId
+     */
     public void allerVerificationSerial(String serialPreRempli, String orderId) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(VIEWS + "serial.fxml"));
@@ -125,6 +134,11 @@ public class SceneRouter {
         charger("serial.fxml");
     }
 
+    /**
+     * Route vers les résultats de la commande
+     * @param orderId
+     * @param serials
+     */
     public void allerResultats(String orderId, List<String> serials) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(VIEWS + "attente.fxml"));

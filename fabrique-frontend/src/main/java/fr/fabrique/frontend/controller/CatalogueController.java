@@ -42,6 +42,9 @@ public class CatalogueController {
         chargerCatalogue();
     }
 
+    /**
+     * Méthode chargerCatalogue qui charge le cataloge avec les produits
+     */
     private void chargerCatalogue() {
         try {
             List<Produit> produits = CatalogueLoader.charger();

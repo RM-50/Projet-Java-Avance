@@ -13,10 +13,18 @@ public class Panier {
     private final ReadOnlyMapWrapper<String, Integer> quantites =
             new ReadOnlyMapWrapper<>(FXCollections.observableHashMap());
 
+    /**
+     * Méthode incrementer qui sert à ajouter un produit dans le panier
+     * @param produitId
+     */
     public void incrementer(String produitId) {
         quantites.put(produitId, quantites.getOrDefault(produitId, 0) + 1);
     }
 
+    /**
+     * Méthode décrémenter qui retire un produit du panier
+     * @param produitId
+     */
     public void decrementer(String produitId) {
         int actuel = quantites.getOrDefault(produitId, 0);
         if (actuel <= 1) {

@@ -72,6 +72,11 @@ public final class CatalogueLoader {
         return produits;
     }
 
+    /**
+     * Méthode parseProduit qui récupère les informations d'un produit
+     * @param obj le produit
+     * @return produit instancié
+     */
     private static Produit parseProduit(String obj) {
         String id          = extraireStr(obj, "id");
         String name        = extraireStr(obj, "name");

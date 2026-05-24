@@ -76,6 +76,11 @@ public class MqttFrontendClient implements MqttCallback {
     }
 
 
+    /**
+     * Méthode publier qui permet d'envoyer un payload sur un topic
+     * @param topic
+     * @param payload
+     */
     public void publier(String topic, String payload) {
         try {
             MqttMessage msg = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
@@ -87,6 +92,10 @@ public class MqttFrontendClient implements MqttCallback {
         }
     }
 
+    /**
+     * Méthode abonner qui permet de s'abonner à un topic
+     * @param topic
+     */
     public void abonner(String topic) {
         try {
             client.subscribe(topic, qos);
@@ -96,6 +105,10 @@ public class MqttFrontendClient implements MqttCallback {
         }
     }
 
+    /**
+     * Méthode se désabonner qui permet de se désabonner d'un topic
+     * @param topic
+     */
     public void desabonner(String topic) {
         try {
             client.unsubscribe(topic);

@@ -30,11 +30,13 @@ public class SerialController {
     private String orderId;
 
 
-
+    /**
+     * Méthode permettant de vérifier un numéro de série
+     */
     @FXML
     private void onVerifier() {
         String serial = txtSerial.getText().trim().toUpperCase();
-
+        // première vérification du format de numéro de série
         if (!serial.matches("[A-Za-z0-9]{2}-[A-Za-z0-9]+-[A-Za-z0-9]+")) {
             afficherResultat("⚠️ Format invalide — attendu : XX-XXXXXX-XXXXXX", false);
             return;
@@ -50,6 +52,7 @@ public class SerialController {
         }
         dernierSerial = serial;
 
+        // On s'abonne au topic serials/{serial}
         client.abonner("serials/" + serial);
         client.setMessageCallback((topic, payload) -> {
             if (("serials/" + serial).equals(topic)) {
@@ -64,12 +67,17 @@ public class SerialController {
             }
         });
 
-        // Publier la demande (pas de payload nécessaire selon le README)
+        // Publier la demande
         client.publier("serials/" + serial + "/check", "");
         LOG.info("Vérification demandée pour le serial {}", serial);
         afficherResultat("⏳ Vérification en cours...", false);
     }
 
+    /**
+     * Affiche les résultat final
+     * @param message résultat
+     * @param valide true si valide, false sinon
+     */
     public void afficherResultat(String message, boolean valide) {
         Platform.runLater(() -> {
             lblResultat.setText(message);
@@ -94,6 +102,11 @@ public class SerialController {
         return router;
     }
 
+    /**
+     * Méthode preRemplir qui se charge de pré-remplir le champ numéro de série lorsque l'on vient de la page de réception des commandes
+     * @param serial numéro de série
+     * @param orderId numéro de commande
+     */
     public void preRemplir(String serial, String orderId) {
         this.orderId = orderId;
         txtSerial.setText(serial);
