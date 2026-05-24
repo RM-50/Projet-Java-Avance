@@ -91,4 +91,33 @@ class UsineImplTest {
         commande.put(TypeLunette.CLAUDE, 0);
         assertThrows(UsineException.class, () -> usine.produire(commande));
     }
+
+    @Test
+    void produire_avec_listener_appelle_processing_puis_processed() throws Exception {
+        java.util.List<String> statuts = new java.util.ArrayList<>();
+
+        usine.produire(Map.of(TypeLunette.CLAUDE, 1), statuts::add);
+
+        assertEquals(2, statuts.size());
+        assertEquals("processing", statuts.get(0));
+        assertEquals("processed",  statuts.get(1));
+    }
+
+    @Test
+    void deux_appels_simultanees_produisent_toutes_leurs_lunettes() throws Exception {
+        java.util.concurrent.ExecutorService exec =
+                java.util.concurrent.Executors.newFixedThreadPool(2);
+
+        java.util.concurrent.Future<java.util.List<Lunette>> f1 =
+                exec.submit(() -> usine.produire(Map.of(TypeLunette.CLAUDE, 1)));
+        java.util.concurrent.Future<java.util.List<Lunette>> f2 =
+                exec.submit(() -> usine.produire(Map.of(TypeLunette.BANANA, 1)));
+
+        java.util.List<Lunette> r1 = f1.get(20, java.util.concurrent.TimeUnit.SECONDS);
+        java.util.List<Lunette> r2 = f2.get(20, java.util.concurrent.TimeUnit.SECONDS);
+
+        exec.shutdown();
+        assertEquals(1, r1.size());
+        assertEquals(1, r2.size());
+    }
 }

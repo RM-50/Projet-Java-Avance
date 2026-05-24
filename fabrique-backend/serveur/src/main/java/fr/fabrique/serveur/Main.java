@@ -57,13 +57,13 @@ public final class Main {
                 LOG.info("=== Serveur Fabrique arrêté ===");
             }, "shutdown-hook"));
 
-            LOG.info("=== Serveur opérationnel — en attente de commandes ===");
+            LOG.info("=== Serveur operationnel — en attente de commandes ===");
             Thread.currentThread().join();
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            LOG.error("Démarrage impossible", e);
+            LOG.error("Demarrage impossible", e);
             System.exit(1);
         }
     }

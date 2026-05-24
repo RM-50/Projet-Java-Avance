@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -40,8 +41,8 @@ public class UsineImpl implements Usine {
         this.fabricateur = fabricateur;
         this.dispatcher  = dispatcher;
         this.pool        = Executors.newFixedThreadPool(fabricateur.getCapacity());
-        LOG.info("Usine initialisée — capacité={}, mode={}",
-                fabricateur.getCapacity(), dispatcher != null ? "mutualisé" : "séquentiel");
+        LOG.info("Usine initialisee — capacite={}, mode={}",
+                fabricateur.getCapacity(), dispatcher != null ? "mutualise" : "sequentiel");
     }
 
     /**
@@ -88,7 +89,7 @@ public class UsineImpl implements Usine {
             toutes.addAll(fabriquerLotParallele(file.subList(debut, fin)));
             debut = fin;
         }
-        LOG.info("Production séquentielle terminée : {} lunettes", toutes.size());
+        LOG.info("Production sequentielle terminee : {} lunettes", toutes.size());
         return toutes;
     }
 
@@ -129,18 +130,42 @@ public class UsineImpl implements Usine {
     private List<Lunette> produireViaDispatcher(Map<TypeLunette, Integer> typesLunettes)
             throws UsineException {
         LOG.info("Production via dispatcher : {}", typesLunettes);
-        CompletableFuture<List<Lunette>> future = dispatcher.soumettre(typesLunettes);
-        try {
-            List<Lunette> lunettes = future.get(); // bloque jusqu'à la fin de la production
-            LOG.info("Production dispatcher terminée : {} lunettes", lunettes.size());
-            return lunettes;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new UsineException("Production interrompue", e);
-        } catch (ExecutionException e) {
-            throw new UsineException(
-                    "Erreur de production : " + e.getCause().getMessage(), e.getCause());
+
+        // Aplatir la commande en liste
+        List<TypeLunette> file = transformerEnListe(typesLunettes);
+        int capacity = fabricateur.getCapacity();
+
+        // Découper en sous-lots de taille <= capacity et soumettre chacun
+        List<CompletableFuture<List<Lunette>>> futures = new ArrayList<>();
+        int debut = 0;
+        while (debut < file.size()) {
+            int fin = Math.min(debut + capacity, file.size());
+            List<TypeLunette> sousLot = file.subList(debut, fin);
+
+            // Reconstruire une Map pour ce sous-lot
+            Map<TypeLunette, Integer> mapSousLot = new LinkedHashMap<>();
+            for (TypeLunette type : sousLot) {
+                mapSousLot.merge(type, 1, Integer::sum);
+            }
+            futures.add(dispatcher.soumettre(mapSousLot));
+            debut = fin;
         }
+
+        // Attendre tous les sous-lots et agréger
+        List<Lunette> toutes = new ArrayList<>();
+        for (CompletableFuture<List<Lunette>> future : futures) {
+            try {
+                toutes.addAll(future.get());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new UsineException("Production interrompue", e);
+            } catch (ExecutionException e) {
+                throw new UsineException(
+                        "Erreur de production : " + e.getCause().getMessage(), e.getCause());
+            }
+        }
+        LOG.info("Production dispatcher terminee : {} lunettes", toutes.size());
+        return toutes;
     }
 
     /**
@@ -155,12 +180,12 @@ public class UsineImpl implements Usine {
                 throw new UsineException("Type de lunette null dans la commande.");
             }
             if (entry.getValue() == null || entry.getValue() < 0) {
-                throw new UsineException("Quantité invalide pour " + entry.getKey() + " : " + entry.getValue());
+                throw new UsineException("Quantite invalide pour " + entry.getKey() + " : " + entry.getValue());
             }
         }
         long totalQte = typesLunettes.values().stream().mapToLong(Integer::longValue).sum();
         if (totalQte == 0) {
-            throw new UsineException("La quantité totale est zéro.");
+            throw new UsineException("La quantite totale est zero.");
         }
     }
 

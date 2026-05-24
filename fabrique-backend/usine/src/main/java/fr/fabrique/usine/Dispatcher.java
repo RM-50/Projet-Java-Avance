@@ -32,7 +32,7 @@ public class Dispatcher {
         this.dispatcherThread = new Thread(this::boucleDispatch, "dispatcher-thread");
         this.dispatcherThread.setDaemon(true);
         this.dispatcherThread.start();
-        LOG.info("Dispatcher démarré — capacité machine : {}", capacity);
+        LOG.info("Dispatcher demarre — capacite machine : {}", capacity);
     }
 
     public CompletableFuture<List<Lunette>> soumettre(Map<TypeLunette, Integer> typesLunettes) {
@@ -134,7 +134,7 @@ public class Dispatcher {
                 lunettesDeLaDemande.add(toutesLesLunettes.get(idx));
             }
             groupe.get(i).future.complete(lunettesDeLaDemande);
-            LOG.debug("Commande {} complétée ({} lunettes)", i, lunettesDeLaDemande.size());
+            LOG.debug("Commande {} completee ({} lunettes)", i, lunettesDeLaDemande.size());
         }
     }
 }
