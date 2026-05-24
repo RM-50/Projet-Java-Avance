@@ -29,7 +29,7 @@ public class SerialController {
         String serial = txtSerial.getText().trim().toUpperCase();
 
         // Validation du format XX-XXXXXX-XXXXXX
-        if (!serial.matches("[A-Z0-9]{2}-[A-Z0-9]{6}-[A-Z0-9]{6}")) {
+        if (!serial.matches("[A-Za-z0-9]{2}-[A-Za-z0-9]+-[A-Za-z0-9]+")) {
             afficherResultat(" Format invalide — attendu : XX-XXXXXX-XXXXXX", false);
             return;
         }
