@@ -29,20 +29,9 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-    - name: Configurer l'accès au dépôt privé fabricateur
-      run: |
-        mkdir -p ~/.m2
-        cat > ~/.m2/settings.xml << 'SETTINGS'
-        <settings>
-          <servers>
-            <server>
-              <id>github-fabricateur</id>
-              <username>${FABRICATEUR_USERNAME}</username>
-              <password>${FABRICATEUR_TOKEN}</password>
-            </server>
-          </servers>
-        </settings>
-        SETTINGS
+        server-id: github-fabricateur
+        server-username: FABRICATEUR_USERNAME
+        server-password: FABRICATEUR_TOKEN
     - name: Build with Maven
       env:
         FABRICATEUR_USERNAME: ${{ secrets.FABRICATEUR_USERNAME }}
