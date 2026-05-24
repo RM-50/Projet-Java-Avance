@@ -218,7 +218,14 @@ Les tests lents utilisent un vrai `Fabricateur` (2-3s par lunette produite).
 cd fabrique-backend
 
 # Configurer l'accès au dépôt privé dans ~/.m2/settings.xml
-# (voir settings.xml.example)
+# <servers>
+#    <server>
+#      <id>github-fabricateur</id>
+#      <username>le-prof-de-raizo</username>
+#      <password>TOKEN</password>
+#    </server>
+#  </servers>
+
 
 mvn clean package -DskipSlowTests=slow
 java -jar serveur/target/fabrique-serveur.jar
