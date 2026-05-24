@@ -45,7 +45,7 @@ public class OrderHandler {
     }
 
     public void handle() {
-        LOG.info("[order={}] Début du traitement", orderId);
+        LOG.info("[order={}] Debut du traitement", orderId);
         try {
 
             String payloadStr = new String(rawPayload, StandardCharsets.UTF_8);
@@ -79,7 +79,7 @@ public class OrderHandler {
             }
 
             publierDelivery(lunettes);
-            LOG.info("[order={}] Traitement terminé — {} lunettes livrées",
+            LOG.info("[order={}] Traitement termine — {} lunettes livrees",
                     orderId, lunettes.size());
 
         } catch (Exception e) {

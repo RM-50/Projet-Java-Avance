@@ -47,7 +47,7 @@ public class MqttGateway implements MqttCallback{
         options.setKeepAliveInterval(20);
 
         client.connect(options);
-        LOG.info("Connecté au broker MQTT");
+        LOG.info("Connecte au broker MQTT");
 
         client.subscribe(TOPIC_ORDERS,  config.qos());
         client.subscribe(TOPIC_SERIALS, config.qos());
@@ -55,11 +55,11 @@ public class MqttGateway implements MqttCallback{
     }
 
     public void stop() {
-        LOG.info("Arrêt de la passerelle MQTT...");
+        LOG.info("Arret de la passerelle MQTT...");
         pool.shutdown();
         try {
             if (!pool.awaitTermination(30, TimeUnit.SECONDS)) {
-                LOG.warn("Certains traitements n'ont pas terminé dans le délai imparti");
+                LOG.warn("Certains traitements n'ont pas termine dans le delai imparti");
                 pool.shutdownNow();
             }
         } catch (InterruptedException e) {
@@ -70,9 +70,9 @@ public class MqttGateway implements MqttCallback{
         if (client != null && client.isConnected()) {
             try {
                 client.disconnect();
-                LOG.info("Déconnecté du broker MQTT");
+                LOG.info("Deconnecte du broker MQTT");
             } catch (MqttException e) {
-                LOG.warn("Erreur lors de la déconnexion", e);
+                LOG.warn("Erreur lors de la deconnexion", e);
             }
         }
     }
@@ -83,7 +83,7 @@ public class MqttGateway implements MqttCallback{
             message.setQos(config.qos());
             message.setRetained(false);
             client.publish(topic, message);
-            LOG.debug("Publié sur '{}' : {}", topic, payload);
+            LOG.debug("Publie sur '{}' : {}", topic, payload);
         } catch (MqttException e) {
             LOG.error("Erreur de publication sur '{}'", topic, e);
         }
@@ -111,7 +111,7 @@ public class MqttGateway implements MqttCallback{
             });
 
         } else {
-            LOG.warn("Message reçu sur topic non géré : '{}'", topic);
+            LOG.warn("Message reçu sur topic non gere : '{}'", topic);
         }
     }
 

@@ -22,7 +22,7 @@ public class SerialChecker {
     }
 
     public void handle() {
-        LOG.info("[serial={}] Vérification", serial);
+        LOG.info("[serial={}] Verification", serial);
 
         TypeLunette type = Fabricateur.validateSerial(serial);
 

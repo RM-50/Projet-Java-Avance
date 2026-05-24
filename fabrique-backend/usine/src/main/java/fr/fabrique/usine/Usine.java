@@ -18,6 +18,21 @@ public interface Usine {
      * @throws UsineException en cas d'échec de fabrication
      */
     List<Lunette> produire(Map<TypeLunette, Integer> typesLunettes) throws UsineException;
+
+    /**
+     *
+     * Variante avec listener de progression — Jalon 3.3.
+     *<p>
+     * Le {@code onStatut} est appelé avec :
+     * <ul>
+     *  <li>{@code "processing"} quand la fabrication démarre</li>
+     *  <li>{@code "processed"}  quand elle se termine</li>
+     * </ul>
+     * Implémentation par défaut : délègue à {@link #produire(Map)} sans notifier.
+     * Les implémentations peuvent surcharger pour notifier réellement.*
+     * @param typesLunettes quantités demandées
+     * @param onStatut      callback appelé à chaque changement d'état
+     * */
     default List<Lunette> produire(Map<TypeLunette, Integer> typesLunettes, Consumer<String> onStatut) throws UsineException {
         return produire(typesLunettes);
     }
