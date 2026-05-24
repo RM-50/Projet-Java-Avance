@@ -37,8 +37,8 @@ jobs:
           <servers>
             <server>
               <id>github-fabricateur</id>
-              <username>${env.FABRICATEUR_USERNAME}</username>
-              <password>${env.FABRICATEUR_TOKEN}</password>
+              <username>${FABRICATEUR_USERNAME}</username>
+              <password>${FABRICATEUR_TOKEN}</password>
             </server>
           </servers>
         </settings>
