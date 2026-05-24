@@ -30,7 +30,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
         server-id: github-fabricateur
-        server-username: FABBRICATEUR_USERNAME
+        server-username: FABRICATEUR_USERNAME
         server-password: FABRICATEUR_TOKEN
     - name: Build with Maven
       env:
